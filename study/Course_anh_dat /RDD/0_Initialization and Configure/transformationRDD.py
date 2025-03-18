@@ -13,7 +13,7 @@ input_data = [1,2,4,6,7,3,6,7,8,9]
 initRDD = sc.parallelize(input_data)
 print(initRDD.getNumPartitions())
 
-# Transformation
+# 1_Transformation
 squareRDD = initRDD.map(lambda i: i*i)
 
 filterRDD = initRDD.filter(lambda i: i>4) # lấy những số lớn hơn 4
