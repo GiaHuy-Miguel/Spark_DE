@@ -14,6 +14,8 @@ rdd = spark.sparkContext.parallelize(range(1,11)) \
 print(rdd.collect())
 
 df_no_name = spark.createDataFrame(rdd).show()
-df = spark.createDataFrame(rdd, ["key", "value"]).show() # Tạo RDD nhớ có schema => StructType(Array(StructField, StructField))
+df = spark.createDataFrame(rdd, ["key", "value"]).show()
+
+# Tạo RDD nhớ có schema => StructType(Array(StructField, StructField))
 
 

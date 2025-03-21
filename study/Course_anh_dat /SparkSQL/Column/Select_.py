@@ -1,3 +1,4 @@
+from pyspark.sql.functions import col, upper
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, \
     LongType, StringType,BooleanType
@@ -38,4 +39,24 @@ df = spark.read.\
     option("multiline", "true").\
     schema(schema).\
     json("/home/miguel/HUY/Work/COURSE/DE_DA/DE_Anh Dat/Spark/study/Course_anh_dat /Resources/large-file.json")
-df.show(truncate=False)
+# df.show(truncate=False)
+"""
+    Lesson 
+"""
+# df.show()
+# df. select(col("id")).show()
+
+#select with expression
+# df.select(
+#     col("id")*2,
+#     upper(col("type")).alias("UPPER_TYPE")
+# ).show()
+
+#select all columns
+# jsonData.select("*").show()
+# jsonData.select()
+
+df.select(
+    col("id"),
+    (col("id")- (col("id") %2) ).alias("new_id")
+).show()

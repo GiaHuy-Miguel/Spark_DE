@@ -1,0 +1,9 @@
+# Count
+- count(1) & count(*) =>> đếm hàng/ đếm có null
+- count(col_name) =>> đếm ko null
+
+# UDF
+- UDF: User define function =>> xào đi xào lại như rau
+- Là function phép biến đổi (function) người dùng tạo trước để tái sử dụng
+- Khác với CTE chỉ lưu kết quả; UDF lưu logic biến đổi
+- UDF thực hiển biến đổi trên 1 row =>> có thể thực hiện trên nhiều column
