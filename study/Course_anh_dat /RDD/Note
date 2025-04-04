@@ -1,0 +1,3 @@
+- Map là để xử lý từng hàng trong 1 RDD
+- FlatMap là để xử lý từng phần tử trong hàng của 1 RDD
+- MapPartitions là để xử lý từng partitions trong RDD

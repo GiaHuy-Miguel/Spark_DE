@@ -1,0 +1,3 @@
+- GroupByKey vs ReduceByKey: 
+=>> GroupByKey: ko có tính toán + shuffle full data 
+=>> ReduceByKey: tính toán được + reduce xong mới shuffle 

@@ -1,0 +1,11 @@
+- kafka:
+    + 64mb/1 kafka
+    + 1024mb/1 kafka
+- Databases:
+    + MySQL = Relational - Best for data storage (phải tạo schema)
+    + MongoDB = Non-relational - Key-Value Architecture
+            - Best for high-capacity query (1 triệu người truy vấn)
+    + Redis = In-memory DB - Best for caching => Optimize large work-load (queries)
+                                              => Truy vấn nhanh trên DB
+- New Lib:
+
