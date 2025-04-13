@@ -1,64 +1,27 @@
-import mysql.connector
-from mysql.connector import Error
-from mysql_config import get_config
-from pathlib import Path
+from bson import Int64
 
-DATABASE_NAME = "GIT"
-SQL_FILE_PATH = Path("/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/src/schema.sql ")
+from config.database_config import get_dbconfig
+from database_connect.mongo_connect import MongoConnect
+from database_connect.schema_manager import create_mongo_schema, validate_mongo_schema
 
-def connect_to_mysql(config):
-    try:
-        connection = mysql.connector.connect(**config)
-        return connection
-    except ConnectionError as e:
-        raise Exception(f"-------------------cannot connect to MySQL: {e}--------------------") from e
-
-def create_database(cursor, db_name):
-    cursor.execute(f'CREATE DATABASE IF NOT EXISTS {db_name}')
-    print(f'-------------------------database {db_name} created--------------------')
-
-def create_table(cursor, file_path):
-    with open(file_path, "r") as file:
-        sql_script = file.read()
-
-    commands = [cmd.strip() for cmd in sql_script.split(";") if cmd.strip() ]
-
-    for cmd in commands:
-        try:
-            cursor.execute(cmd)
-            print(f"-------------executed: {cmd.strip()[::50]}----------------------")
-        except Error as e:
-            print(f"--------------------cannot execute SQL: {e}-------------------")
 
 def main():
-    try:
-        # Get db_config without db
-        db_config = get_config()
-        initial_config = {k:v for k,v in db_config.items() if k != "database"}
-        # print(initial_config)
+    config_mongo = get_dbconfig()
 
-        # Connect to MySQL
-        connection = connect_to_mysql(initial_config)
-        cursor = connection.cursor()
+    mongodb_client = MongoConnect(config_mongo["mongo"].uri, config_mongo["mongo"].db_name)
+    create_mongo_schema("Users",mongodb_client.connect())
 
-        # Create DB
-        create_database(cursor, db_name="GIT")
-        connection.database = "GIT"
+    # Insert sample record
+    mongodb_client.db.Users.insert_one({
+        "user_id": Int64(1),
+        "login": "jsonmurphy",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/jsonmurphy",
+        "avatar_url": "https://avatars.githubusercontent.com/u/1843574?"
+    })
+    print("-------------------Inserted Record to MongoDB-------------------------------")
 
-        # Create Table
-        create_table(cursor, SQL_FILE_PATH)
+    validate_mongo_schema("Users",mongodb_client.connect())
 
-        # Commit changes to DB
-        connection.commit()
-    except Exception as e:
-        print(f"------------------Error: {e}------------------")
-        if connection and connection.is_connected():
-            connection.rollback()
-    finally:
-        if cursor:
-            cursor.close()
-        if connection and connection.is_connected():
-            connection.close()
-        print("----------------Disconnect from MySQL--------------------")
 if __name__ == "__main__":
     main()

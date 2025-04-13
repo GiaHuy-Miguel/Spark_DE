@@ -8,4 +8,31 @@
     + Redis = In-memory DB - Best for caching => Optimize large work-load (queries)
                                               => Truy vấn nhanh trên DB
 - New Lib:
+    + from dataclasses import dataclass =>>> thư viện tạo nhanh các class chỉ gồm data
+    + python-dotenv =>>> đọc file .env
+
+- Spark_Config:
+    + Khi làm việc thực tế, mình chỉ được phép làm việc với các worker/ sếp mình làm việc với master
+    =>> tùy ý bật tắt các worker
+    + Spark muốn kết nối vào database phải có 1 gói jar để kết nối
+    + Truyền nhiều đường dẫn file jar vào spark : 'spark.jars' : '/home/miguel/A, /home/miguel/B, /home/miguel/C'
+
+- Làm việc với project:
+    + Code chặt chẽ hơn bằng việc thêm kiểu dữ liệu đầu vào cho hàm
+    + Try - catch để tối ưu quá trình xử lý bug/giải thích bug cho end user
+    + Sắp xếp file theo folder xử lý từng tác vụ 1
+    + viết hàm __main__ để chạy chương trình
+    + File .env (thêm vào gitignore) & File
+
+- Lưu ý bài toán xử lý dict & dataclass:
+        `````
+        @dataclass
+        class A():
+          hjhj: str
+          hho: str
+
+        a = A().__dict__
+        print(a)
+        `````
+    =>> output: a = {hjhj: hehe, hho: hjhjhj}
 
