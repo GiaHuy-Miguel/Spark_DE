@@ -1,64 +1,42 @@
 import mysql.connector
-from mysql.connector import Error
-from config.database_config import get_dbconfig
+
+# from config.database_config import get_dbconfig
 from pathlib import Path
 
-DATABASE_NAME = "GIT"
-SQL_FILE_PATH = Path("/bad_code /src/mysql_schema.sql")
+from mysql.connector.abstracts import MySQLCursorAbstract, MySQLConnectionAbstract
 
-def connect_to_mysql(config):
-    try:
-        connection = mysql.connector.connect(**config)
-        return connection
-    except ConnectionError as e:
-        raise Exception(f"-------------------cannot connect to MySQL: {e}--------------------") from e
 
-def create_database(cursor, db_name):
-    cursor.execute(f'CREATE DATABASE IF NOT EXISTS {db_name}')
-    print(f'-------------------------database_connect{db_name} created--------------------')
+class MySQLConnect:
+# DATABASE_NAME = "GIT"
+# SQL_FILE_PATH = Path("/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/database_connect/mysql_schema.sql")
+    def __init__(self, host, port, password, user):
+        self.config = {"host": host, "port": port, "user": user, "password": password}
+        self.cursor = None
+        self.connection = None
 
-def create_table(cursor, file_path):
-    with open(file_path, "r") as file:
-        sql_script = file.read()
-
-    commands = [cmd.strip() for cmd in sql_script.split(";") if cmd.strip() ]
-
-    for cmd in commands:
+    def connect(self):
         try:
-            cursor.execute(cmd)
-            print(f"-------------executed: {cmd.strip()[::50]}----------------------")
-        except Error as e:
-            print(f"--------------------cannot execute SQL: {e}-------------------")
+            connection = mysql.connector.connect(**self.config)
+            cursor = connection.cursor()
+            return connection, cursor
+        except Exception as e:
+            print(f"------------------Error: {e}------------------")
+            return None
 
-def main():
-    try:
-        # Get db_config without db
-        db_configs = get_dbconfig()["mysql"].__dict__
-        initial_config = {k:v for k,v in db_configs.items() if k not in ("database","url", "driver")}
-        # print(initial_config)
-
-        # Connect to MySQL
-        connection = connect_to_mysql(initial_config)
-        cursor = connection.cursor()
-
-        # Create DB
-        create_database(cursor, db_name="GIT")
-        connection.database = "GIT"
-
-        # Create Table
-        create_table(cursor, SQL_FILE_PATH)
-
-        # Commit changes to DB
-        connection.commit()
-    except Exception as e:
-        print(f"------------------Error: {e}------------------")
-        if connection and connection.is_connected():
-            connection.rollback()
-    finally:
-        if cursor:
-            cursor.close()
-        if connection and connection.is_connected():
-            connection.close()
+    def disconnect(self):
+        if self.cursor:
+            self.cursor.close()
+        if self.connection and self.connection.is_connected():
+            self.connection.close()
         print("----------------Disconnect from MySQL--------------------")
-if __name__ == "__main__":
-    main()
+
+    def __enter__(self):
+        self.connect()
+        print("-------------------------Connected to MySQL------------------------")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.disconnect()
+        return self
+
+

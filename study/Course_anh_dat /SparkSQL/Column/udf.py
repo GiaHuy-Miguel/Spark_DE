@@ -39,12 +39,7 @@ schema = StructType([
 df = spark.read.\
     option("multiline", "true").\
     schema(schema).\
-<<<<<<< HEAD
     json("/home/miguel/HUY/Work/COURSE/DE_DA/DE_Anh Dat/Spark/study/Course_anh_dat /Resources/large-file.json")
-=======
-    json("/home/miguel/HUY/Work/COURSE/DE_DA/DE_Anh Dat/Spark/study/Course_anh_dat /resources/large-file.json")
->>>>>>> 2edff36 (commit of 04/04/2025 - problem 1)
-
 """
     Lesson: UDF - user define function 
     - là function/ các phép biến đổi mà user tạo trước 
