@@ -6,6 +6,9 @@ from collections.abc import Mapping
 from bson.int64 import Int64
 from pymongo.synchronous.database import Database
 
+#
+# ----------------------------------- FOR MYSQL ------------------------------------------
+#
 def create_mysql_schema(cursor, db_name, file_path):
     # CREATE DATABASES
     cursor.execute(f'CREATE DATABASE IF NOT EXISTS {db_name}')
@@ -34,7 +37,11 @@ def validate_mysql_schema(cursor):
     if not user:
         raise ValueError("-----------------------------Missing record-------------------------")
     print("--------------------------MySQL DB Schema Validated----------------------")
+    cursor.execute("DELETE FROM Users WHERE users_id = 1")
 
+#
+# ----------------------------------- FOR MONGODB ------------------------------------------
+#
 def create_mongo_schema(collection_name:str, db: Database[Mapping[str]]):
     if collection_name in db.list_collection_names():
         raise ValueError("-----------------Collection Exists------------------")

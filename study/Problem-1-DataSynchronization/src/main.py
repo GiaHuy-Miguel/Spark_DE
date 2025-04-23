@@ -5,7 +5,7 @@ from config.database_config import get_dbconfig
 
 from database_connect.mongo_connect import MongoConnect
 from database_connect.mysql_connect import MySQLConnect
-from database_connect.redis_connect import connect_to_redis
+from database_connect.redis_connect import RedisConnect
 
 from database_connect.schema_manager import create_mongo_schema, validate_mongo_schema, create_mysql_schema, \
     validate_mysql_schema
@@ -15,7 +15,7 @@ SQL_FILE_PATH = Path("/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/
 
 def main():
 
-# CONNECT TO MYSQL
+# CONNECT TO MYSQL #
     db_configs = get_dbconfig()["mysql"].__dict__
     initial_config = {k: v for k, v in db_configs.items() if k not in ("database", "url", "driver")}
     # print(initial_config)
@@ -34,10 +34,10 @@ def main():
     if not user_check:
         cursor.execute("INSERT INTO Users  (users_id, login, gravatar_id, url, avatar_url) VALUES (%s, %s, %s, %s, %s)",
                        (1, "jsonmurphy", "", "https://api.github.com/users/jsonmurphy", "https://avatars.githubusercontent.com/u/1843574?"))
-    connection.commit()
     validate_mysql_schema(cursor)
+    connection.commit()
 
-# CONNECT TO MONGODB
+# CONNECT TO MONGODB #
     config_mongo = get_dbconfig()
 
     mongodb_client = MongoConnect(config_mongo["mongo"].uri, config_mongo["mongo"].db_name)
@@ -55,9 +55,14 @@ def main():
 
     validate_mongo_schema("Users",mongodb_client.connect())
 
- # CONNECT TO REDIS
+ # CONNECT TO REDIS #
+    PATH = "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/data/sample.json"
+
     redis_config = get_dbconfig()["redis"].__dict__
-    connect_to_redis(**redis_config)
+    redis_client = RedisConnect(**redis_config)
+    redis_client.connect()
+    redis_client.write_data(PATH)
+    redis_client.get_data(1843574)
 
 if __name__ == "__main__":
     main()
