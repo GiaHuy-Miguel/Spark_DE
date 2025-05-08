@@ -1,14 +1,21 @@
 from config.database_config import get_dbconfig
 from config.spark_config import SparkConnect
-from spark_write_data import SparkConnectMySQL
+from spark_write_data import SparkConnectMySQL, SparkConnectMongoDB, SparkConnectRedis
 
 from pyspark.sql.functions import col
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
 def main():
+    DB_CONFIG = get_dbconfig()
 
-    JARS = ["/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/lib/mysql-connector-j-9.2.0/mysql-connector-j-9.2.0.jar"]
+    JARS = ["/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/lib/mysql-connector-j-9.2.0/mysql-connector-j-9.2.0.jar",
+            "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/lib/mongo-spark-connector_2.12-10.3.0.jar",
+            "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/lib/mongodb-driver-sync-4.11.0.jar",
+            "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/lib/bson-4.11.0.jar",
+            "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/lib/mongodb-driver-core-4.11.0.jar",
+            "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/lib/spark-redis_2.12-3.1.0-jar-with-dependencies.jar"]
     PATH = "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/data/2015-03-01-17.json"
+
     SCHEMA = StructType([
         StructField("actor", StructType([
             StructField("id", IntegerType(), True),
@@ -20,7 +27,7 @@ def main():
     ])
 
     PROPERTIES = {
-        # Connection pooling and optimization properties
+        # Cache prepared statements for reuse & batch processing
         "cachePrepStmts": "true",  # Cache prepared statements
         "prepStmtCacheSize": "250",  # Size of prepared statement cache
         "prepStmtCacheSqlLimit": "2048",  # Max SQL length for caching
@@ -32,14 +39,17 @@ def main():
 
 # CONNECT TO SPARK
     spark = SparkConnect(
-        app_name="capuccina balerina",
-        master_url="local[*]",
-        # thực tế là đi làm ko được chạy trên local =>> phải link vào con master
+        app_name="ballerina capuccina mimimi",
+        master_url="local[*]", # thực tế là đi làm ko được chạy trên local =>> phải link vào con master
         executor_memory='4g',
         executor_core=2,
         driver_memory='2g',
         numb_executors=3,
         jars=JARS,
+        spark_conf= [{"spark.mongodb.output.uri": DB_CONFIG["mongo"].uri},
+                     {"spark.redis.host": DB_CONFIG["redis"].host},
+                     {"spark.redis.auth": DB_CONFIG["redis"].password},
+                     {"spark.redis.port": DB_CONFIG["redis"].port}],
         log_level= "WARN").spark_
 
 # READ JSON FILE
@@ -53,11 +63,21 @@ def main():
                              col("actor.avatar_url")).distinct()
     user_df.show()
 
-# UPLOAD TO DB
-    db_config = get_dbconfig()
-    spark_mysql = SparkConnectMySQL(spark,"GIT.Users" ,db_config)
-    spark_mysql.write_mysql(user_df, PROPERTIES)
-    spark_mysql.validate_import(user_df)
 
+# UPLOAD TO DB
+# # ----------------------------- MYSQL -------------------------------------------
+#     spark_mysql = SparkConnectMySQL(spark,"GIT.Users" ,DB_CONFIG)
+#     spark_mysql.write_mysql(user_df, PROPERTIES)
+#     spark_mysql.validate_import(user_df)
+#
+# # ----------------------------- MONGODB ------------------------------------------
+#     spark_mongo = SparkConnectMongoDB(spark, "Users", DB_CONFIG)
+#     spark_mongo.write_mongodb(user_df, "overwrite")
+#     # spark_mongo.read_mongodb().show()
+#     spark_mongo.validate_import(user_df)
+
+# ----------------------------- REDIS --------------------------------------------
+    spark_redis = SparkConnectRedis(spark, DB_CONFIG, "users_id")
+    spark_redis.write_redis(user_df)
 if __name__ == "__main__":
     main()

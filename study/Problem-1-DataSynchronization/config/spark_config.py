@@ -1,7 +1,6 @@
 import os.path
 from typing import Optional
 from pyspark.sql import SparkSession
-from config.database_config import DatabaseConfig
 
 class SparkConnect:
     def __init__(self,
@@ -13,7 +12,7 @@ class SparkConnect:
                  driver_memory: str | None = '2g',
                  numb_executors: int | None = 3,
                  jars: list[str] | None = None,
-                 spark_conf: dict[str, str] | None = None,
+                 spark_conf: list[dict[str, str]] | None = None,
                  log_level: str = "INFO"
                  ):
         self.app_name = app_name
@@ -28,7 +27,7 @@ class SparkConnect:
             driver_memory: str| None = '2g',
             numb_executors: int | None = 3,
             jars: list[str] | None = None,
-            spark_conf: dict[str, str]| None = None,
+            spark_conf: list[dict[str, str]]| None = None,
             log_level: str = "INFO") -> SparkSession: # Vào parameter -> ra SparkSession
 
             builder = SparkSession.builder \
@@ -55,8 +54,9 @@ class SparkConnect:
             #         /home/miguel/mysql-connect-j-9.2.0/mongodb-connect-j-9.2.0.jar']
                 builder.config("spark.jars", jars_path)
             if spark_conf:
-                for k,v in spark_conf.items():
-                    builder.config(k,v)
+                for conf in spark_conf:
+                    for k,v in conf.items():
+                        builder.config(k,v)
 
             spark_session = builder.getOrCreate() # phải start spark trước mới sinh ra log để ghi
 
@@ -65,7 +65,7 @@ class SparkConnect:
             return spark_session
 
     def end_spark(self):
-        self.spark.stop()
+        self.spark_.stop()
 
     def __enter__(self):
         self.create_spark_session()

@@ -19,7 +19,7 @@ class RedisConnect:
                 port= self.port,
                 password=self.password,
                 db= self.database,
-                username=self.username,
+                # username=self.username,
                 decode_responses=True)
         except ConnectionError as e:
             raise Exception(f"---------------Failed to Connect Redis: {e}-------------")

@@ -12,6 +12,7 @@ from database_connect.schema_manager import create_mongo_schema, validate_mongo_
 
 DATABASE_NAME = "GIT"
 SQL_FILE_PATH = Path("/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/database_connect/mysql_schema.sql")
+REDIS_PATH = "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/data/sample.json"
 
 def main():
 
@@ -37,7 +38,7 @@ def main():
     validate_mysql_schema(cursor)
     connection.commit()
 
-# CONNECT TO MONGODB #
+# CONNECT TO MONGODB # CAI NAY LAM VUI THOI CHU KO CAN TAO SCHEMA
     config_mongo = get_dbconfig()
 
     mongodb_client = MongoConnect(config_mongo["mongo"].uri, config_mongo["mongo"].db_name)
@@ -56,12 +57,10 @@ def main():
     validate_mongo_schema("Users",mongodb_client.connect())
 
  # CONNECT TO REDIS #
-    PATH = "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/data/sample.json"
-
     redis_config = get_dbconfig()["redis"].__dict__
     redis_client = RedisConnect(**redis_config)
     redis_client.connect()
-    redis_client.write_data(PATH)
+    redis_client.write_data(REDIS_PATH)
     redis_client.get_data(1843574)
 
 if __name__ == "__main__":
