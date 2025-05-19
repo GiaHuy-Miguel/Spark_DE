@@ -49,10 +49,10 @@ def create_mongo_schema(collection_name:str, db: Database[Mapping[str]]):
         db.create_collection(collection_name,validator={
             "$jsonSchema":{
                 "bsonType": "object",
-                "required": ["user_id", "login"],
+                "required": ["users_id", "login"],
                 "properties": {
-                    "user_id": {
-                        "bsonType": "long"
+                    "users_id": {
+                        "bsonType": "int"
                     },
                     "login": {
                         "bsonType": "string"
@@ -70,12 +70,14 @@ def create_mongo_schema(collection_name:str, db: Database[Mapping[str]]):
             }
         })
 
-def validate_mongo_schema(collection_name:str, db):
+def validate_mongo_schema(collection_name:str, db: Database):
     collections = db.list_collection_names()
     # print (collections)
     if collection_name not in collections:
         raise ValueError("---------------------Missing Collection in DB-----------------------")
-    user = db.Users.find_one({"user_id": Int64(1)})
+    user = db["Users"].find_one({"users_id": 1})
     if not user:
         raise ValueError("---------------------Missing Value in DB-----------------------")
     print("--------------------------Mongo DB Schema Validated----------------------")
+    result = db['Users'].delete_many({"users_id": 1})
+    print(f"-----------------------Deleted Test Record: {result.deleted_count} Record(s) Deleted-----------------------")

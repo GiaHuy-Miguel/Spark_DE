@@ -34,7 +34,7 @@ def main():
     user_check = cursor.fetchone()
     if not user_check:
         cursor.execute("INSERT INTO Users  (users_id, login, gravatar_id, url, avatar_url) VALUES (%s, %s, %s, %s, %s)",
-                       (1, "jsonmurphy", "", "https://api.github.com/users/jsonmurphy", "https://avatars.githubusercontent.com/u/1843574?"))
+                       (1, 'jsonmurphy', '', 'https://api.github.com/users/jsonmurphy', 'https://avatars.githubusercontent.com/u/1843574?'))
     validate_mysql_schema(cursor)
     connection.commit()
 
@@ -45,8 +45,8 @@ def main():
     create_mongo_schema("Users",mongodb_client.connect())
 
     # Insert sample record
-    mongodb_client.db.Users.insert_one({
-        "user_id": Int64(1),
+    mongodb_client.connect()['Users'].insert_one({
+        "users_id": 1,
         "login": "jsonmurphy",
         "gravatar_id": "",
         "url": "https://api.github.com/users/jsonmurphy",
@@ -54,7 +54,7 @@ def main():
     })
     print("-------------------Inserted Record to MongoDB-------------------------------")
 
-    validate_mongo_schema("Users",mongodb_client.connect())
+    validate_mongo_schema("Users", mongodb_client.connect())
 
  # CONNECT TO REDIS #
     redis_config = get_dbconfig()["redis"].__dict__

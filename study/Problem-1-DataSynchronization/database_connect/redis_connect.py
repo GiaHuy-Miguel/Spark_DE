@@ -50,13 +50,3 @@ class RedisConnect:
         data = self.client.hgetall(f"{key_}")
         print(data)
         return data
-
-
-# PATH = "/home/miguel/HUY/STUDY/COURSE/Spark_Python/Spark_DE/study/Problem-1-DataSynchronization/data/sample.json"
-#
-# redis_config = get_dbconfig()["redis"].__dict__
-# # print(redis_config)
-# r = connect_to_redis(**redis_config)
-#
-# create_redis_schema(PATH, r)
-# print(get_redis_data(1843574, r))
